@@ -25,3 +25,21 @@ input {
   padding: 10px;
   margin-right: 10px;
 }
+
+/* style.css */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none; /* 初期状態で非表示 */
+}
+
+.scroll-top-btn.show {
+  display: block; /* showクラスが追加されると表示される */
+}
