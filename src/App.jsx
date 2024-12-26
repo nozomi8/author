@@ -66,12 +66,22 @@ export default function App() {
       <h2>書籍情報</h2>
       <ul>
         {bookResults.length > 0 ? (
-          bookResults.map((book) => (
+          bookResults.map((book) => {
+            return (
             <li key={book.id}>
               <strong>{book.volumeInfo.title}</strong> by{" "}
               {book.volumeInfo.authors?.join(", ") || "不明"}
+              <br />
+              <strong>出版年:</strong> {book.volumeInfo.publishedDate || "不明"}
+              <br />
+              <strong>説明:</strong> {book.volumeInfo.description || "説明はありません"}
+              <br />
+              {book.volumeInfo.imageLinks?.thumbnail && (
+                <img src={book.volumeInfo.imageLinks.thumbnail} alt="Cover" />
+              )}
             </li>
-          ))
+            );
+          })
         ) : (
           <p>書籍情報は見つかりませんでした。</p>
         )}
