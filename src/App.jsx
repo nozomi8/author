@@ -1,17 +1,29 @@
 import { useState } from "react";
 
 // Google Booksからデータを取得する関数
-async function fetchBooksData(authorName) {
+async function fetchBooksData(authorName, bookTitle) {
   const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  let query = "";
+  if (authorName) {
+    query += `inauthor:${encodeURIComponent(authorName)}`;
+  }
+  if (bookTitle) {
+    if (query) query += "+";
+    query += `intitle:${encodeURIComponent(bookTitle)}`;
+  }
   const response = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=inauthor:${authorName}&key=${apiKey}`
+    `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`
   );
   const data = await response.json();
-  return data.items;
+  if (data.error) {
+    throw new Error(data.error.message);
+  }
+  return data.items || [];
 }
 
 export default function App() {
   const [authorName, setAuthorName] = useState("");
+  const [bookTitle, setBookTitle] = useState("");
   const [bookResults, setBookResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,14 +32,8 @@ export default function App() {
     setLoading(true);
     setError(""); // 前回のエラーメッセージをクリア
 
-    if (!authorName.trim()) {
-      setError("著者名を入力してください。");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const bookData = await fetchBooksData(authorName);
+      const bookData = await fetchBooksData(authorName, bookTitle);
       setBookResults(bookData || []);
     } catch (err) {
       setError("データの取得に失敗しました。もう一度お試しください。");
@@ -38,17 +44,22 @@ export default function App() {
 
   return (
     <div>
-      <h1>著者検索</h1>
+      <h1>著者・作品検索</h1>
+      {/* 著者名入力 */}
       <input
         type="text"
         value={authorName}
         onChange={(e) => setAuthorName(e.target.value)}
         placeholder="著者名を入力"
       />
-      <button onClick={handleSearch} disabled={loading || !authorName}>
-        {loading ? "検索中..." : "検索"}
-      </button>
-
+      {/* 作品名入力 */}
+      <input
+        type="text"
+        value={bookTitle}
+        onChange={(e) => setBookTitle(e.target.value)}
+        placeholder="作品名を入力"
+      />
+      <button onClick={handleSearch}>検索</button>
       {loading && <p>読み込み中...</p>} {/* ローディング中の表示 */}
       {error && <p style={{ color: "red" }}>{error}</p>} {/* エラーメッセージ */}
 
@@ -61,9 +72,9 @@ export default function App() {
               {book.volumeInfo.authors?.join(", ") || "不明"}
             </li>
           ))
-        ) : !loading && authorName ? (
+        ) : (
           <p>書籍情報は見つかりませんでした。</p>
-        ) : null}
+        )}
       </ul>
     </div>
   );
