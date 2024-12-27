@@ -26,7 +26,8 @@ input {
   margin-right: 10px;
 }
 
-/* style.css */
+
+/* スクロールトップボタン*/
 .scroll-top-btn {
   position: fixed;
   bottom: 20px;
@@ -42,4 +43,38 @@ input {
 
 .scroll-top-btn.show {
   display: block; /* showクラスが追加されると表示される */
+}
+
+/* ページネーションのスタイル */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.pagination-button {
+  padding: 10px 15px;
+  font-size: 14px;
+  margin: 0 10px; /* ボタン間の間隔 */
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #0c97f3;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #0c97f3;
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-info {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
 }

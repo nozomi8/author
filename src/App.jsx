@@ -1,28 +1,20 @@
 import { useState, useEffect } from "react";
 
 // Google Booksからデータを取得する関数
-async function fetchBooksData(authorName, bookTitle) {
+async function fetchBooksData(authorName, bookTitle, startIndex = 0, maxResults = 10) {
   const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
   let query = "";
   if (authorName) query += `inauthor:${encodeURIComponent(authorName)}`;
   if (bookTitle) query += (query ? "+" : "") + `intitle:${encodeURIComponent(bookTitle)}`;
 
-  const maxResults = 40;
-  let allResults = [];
-  let startIndex = 0;
-
-  while (true) {
-    const response = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}&startIndex=${startIndex}&maxResults=${maxResults}`
-    );
-    const data = await response.json();
-    if (!data.items || data.items.length === 0) break;
-    allResults = [...allResults, ...data.items];
-    startIndex += maxResults;
-    if (startIndex >= 120) break; 
-  }
-
-  return allResults;
+  const response = await fetch(
+    `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}&startIndex=${startIndex}&maxResults=${maxResults}`
+  );
+  const data = await response.json();
+  return {
+    books: data.items || [],
+    total: data.totalItems || 0, // 総件数を取得
+  };
 }
 
 export default function App() {
@@ -31,57 +23,11 @@ export default function App() {
   const [bookResults, setBookResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // 現在のページ
+  const [totalResults, setTotalResults] = useState(0); // 検索結果の総数
+  const [showScrollTop, setShowScrollTop] = useState(false); // スクロールトップボタン表示管理
 
-  const handleSearch = async () => {
-    if (!authorName && !bookTitle) {
-      setError("検索条件を入力してください。");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setBookResults([]); // 新しい検索の前に結果をクリア
-
-    try {
-      const bookData = await fetchBooksData(authorName, bookTitle);
-
-      // 関連性を考慮して並べ替え
-      const sortedBooks = bookData.sort((a, b) => {
-        // 1. 完全一致（著者名とタイトルの一致）を優先
-        const aScore = getMatchScore(a, authorName, bookTitle);
-        const bScore = getMatchScore(b, authorName, bookTitle);
-
-        // 2. 完全一致がない場合でも部分一致を重視
-        if (aScore !== bScore) return bScore - aScore;
-
-        // 3. 出版年で並べ替え（新しいものが上）
-        const yearA = a.volumeInfo.publishedDate ? parseInt(a.volumeInfo.publishedDate.substring(0, 4)) : 0;
-        const yearB = b.volumeInfo.publishedDate ? parseInt(b.volumeInfo.publishedDate.substring(0, 4)) : 0;
-        return yearB - yearA;
-      });
-
-      setBookResults(sortedBooks);
-    } catch (err) {
-      setError("データの取得に失敗しました。もう一度お試しください。");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // キーワードの一致度スコアを計算
-  const getMatchScore = (book, authorName, bookTitle) => {
-    const title = book.volumeInfo.title?.toLowerCase() || "";
-    const authors = book.volumeInfo.authors?.join(", ").toLowerCase() || "";
-
-    // 完全一致を重視
-    let score = 0;
-    if (authorName && authors.includes(authorName.toLowerCase())) score += 3;
-    if (bookTitle && title.includes(bookTitle.toLowerCase())) score += 2;
-
-    // 部分一致も考慮
-    return score;
-  };
+  const resultsPerPage = 10; // 1ページあたりの表示件数
 
   // スクロール位置によってトップボタンを表示
   useEffect(() => {
@@ -101,6 +47,46 @@ export default function App() {
   // ページトップにスクロール
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // 検索処理
+  const handleSearch = async () => {
+    if (!authorName && !bookTitle) {
+      setError("検索条件を入力してください。");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setBookResults([]);
+    setCurrentPage(1); // 検索のたびにページを1にリセット
+
+    try {
+      const { books, total } = await fetchBooksData(authorName, bookTitle, 0, resultsPerPage);
+      setBookResults(books); // 書籍情報を設定
+      setTotalResults(total); // 総件数を設定
+    } catch (err) {
+      setError("データの取得に失敗しました。もう一度お試しください。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ページ変更処理
+  const handlePageChange = async (newPage) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const startIndex = (newPage - 1) * resultsPerPage;
+      const { books } = await fetchBooksData(authorName, bookTitle, startIndex, resultsPerPage);
+      setBookResults(books); // 書籍情報を設定
+      setCurrentPage(newPage); // 現在のページを更新
+    } catch (err) {
+      setError("データの取得に失敗しました。もう一度お試しください。");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -147,6 +133,30 @@ export default function App() {
           <p>書籍情報は見つかりませんでした。</p>
         )}
       </ul>
+
+      {/* ページネーション */}
+      {totalResults > resultsPerPage && (
+        <div className="pagination">
+        <button
+          className="pagination-button"
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          前のページ
+        </button>
+        <span className="pagination-info">
+          {currentPage} / {Math.ceil(totalResults / resultsPerPage)}
+        </span>
+        <button
+          className="pagination-button"
+          disabled={currentPage * resultsPerPage >= totalResults}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          次のページ
+        </button>
+      </div>
+    )}
+
 
       {/* スクロールトップボタン */}
       <button
