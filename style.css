@@ -26,6 +26,29 @@ input {
   margin-right: 10px;
 }
 
+ul {
+  list-style-type: none; /* リストマーカー（・）を非表示にする */
+  padding: 0; /* デフォルトのパディングを削除 */
+}
+
+.book-item {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff3d3de;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-item img {
+  max-width: 120px;
+  margin-top: 10px;
+}
+
+.book-item + .book-item {
+  margin-top: 20px;
+}
+
 
 /* スクロールトップボタン*/
 .scroll-top-btn {

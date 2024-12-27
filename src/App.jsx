@@ -112,7 +112,7 @@ export default function App() {
       <ul>
         {bookResults.length > 0 ? (
           bookResults.map((book) => (
-            <li key={book.id}>
+            <li key={book.id} className="book-item">
               <strong>{book.volumeInfo.title || "タイトル不明"}</strong> by{" "}
               {book.volumeInfo.authors?.join(", ") || "著者不明"}
               <br />
