@@ -101,3 +101,48 @@ ul {
   font-weight: bold;
   color: #333;
 }
+
+/* ボタンを横並びにして、間隔を空ける */
+.book-item {
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* 読みたい本リストに追加ボタン */
+.add-to-reading-btn {
+  background-color: #4CAF50;
+  color: white;
+  margin-right: 10px;
+}
+
+.add-to-reading-btn:hover {
+  background-color: #45a049;
+}
+
+/* 読んだ本リストに移動ボタン */
+.move-to-read-btn {
+  background-color: #008CBA;
+  color: white;
+}
+
+.move-to-read-btn:hover {
+  background-color: #007bb5;
+}
+
+
+.footer {
+  padding: 1rem;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  background: #4b5564;
+}
