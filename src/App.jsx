@@ -233,38 +233,38 @@ export default function App() {
       </button>
 
       {/* 読みたい本リスト */}
-<h2>読みたい本リスト</h2>
-<ul>
-  {readingList.length > 0 ? (
-    readingList.map((book) => {
-      const uniqueKey = `${book.id}-${book.volumeInfo.title}-${book.volumeInfo.authors?.join(", ")}`;
-      return (
-        <li key={uniqueKey}>
-          {book.volumeInfo.title} by {book.volumeInfo.authors?.join(", ")}
-        </li>
-      );
-    })
-  ) : (
-    <p>読みたい本リストには本がありません。</p>
-  )}
-</ul>
+      <h2>読みたい本リスト</h2>
+      <ul>
+        {readingList.length > 0 ? (
+          readingList.map((book) => {
+          const uniqueKey = `${book.id}-${book.volumeInfo.title}-${book.volumeInfo.authors?.join(", ")}`;
+          return (
+            <li key={uniqueKey}>
+              {book.volumeInfo.title} by {book.volumeInfo.authors?.join(", ")}
+            </li>
+          );
+        })
+        ) : (
+          <p>読みたい本リストには本がありません。</p>
+        )}
+       </ul>
 
-{/* 読んだ本リスト */}
-<h2>読んだ本リスト</h2>
-<ul>
-  {readList.length > 0 ? (
-    readList.map((book) => {
-      const uniqueKey = `${book.id}-${book.volumeInfo.title}-${book.volumeInfo.authors?.join(", ")}`;
-      return (
-        <li key={uniqueKey}>
-          {book.volumeInfo.title} by {book.volumeInfo.authors?.join(", ")}
-        </li>
-      );
-    })
-  ) : (
-    <p>読んだ本リストには本がありません。</p>
-  )}
-</ul>
+       {/* 読んだ本リスト */}
+       <h2>読んだ本リスト</h2>
+       <ul>
+        {readList.length > 0 ? (
+          readList.map((book) => {
+            const uniqueKey = `${book.id}-${book.volumeInfo.title}-${book.volumeInfo.authors?.join(", ")}`;
+            return (
+              <li key={uniqueKey}>
+                {book.volumeInfo.title} by {book.volumeInfo.authors?.join(", ")}
+              </li>
+            );
+          })
+        ) : (
+          <p>読んだ本リストには本がありません。</p>
+        )}
+      </ul>
 
       <footer class="footer">
         <p>5423014 谷中希実</p>
